@@ -15,6 +15,10 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
+    <!-- Create a simple CodeMirror instance -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.3.0/codemirror.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.3.0/codemirror.js"></script>
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -29,8 +33,17 @@
       <h2>Command: </h2>
       <span id="command"></span>
       <h2>Output:</h2>
-      <div id="log">
+      <textarea id="log" rows="3" name="log"></textarea>
       </div>
+
+      <script>
+	var editor = CodeMirror.fromTextArea(document.getElementById("log"), {
+	lineNumbers: true,
+	styleActiveLine: true,
+	matchBrackets: true,
+	readOnly: true
+	});
+      </script>
     </div>
   </body>
 </html>

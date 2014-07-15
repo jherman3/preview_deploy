@@ -12,6 +12,9 @@ type appConfig struct {
 	Source       string      `json:"-"`
 	Environments []string    `json:"environments"`
 	Nodes        []*chefNode `json:"nodes"`
+	Recipes      []string    `json:"recipes"`
+	User         string      `json:"user"`
+	KnifeRb      string      `json:"knifeRb"`
 }
 
 type chefNode struct {

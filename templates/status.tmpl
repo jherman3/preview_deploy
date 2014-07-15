@@ -24,33 +24,7 @@
   </head>
   <body>
     <div class="container">
-      <form class="form-horizontal" role="form" method="POST">
-	<div class="form-group">
-	  <label for="envDropdown" class="col-sm-2 control-label">Environment</label>
-	  <div class="col-sm-10">
-	    <select class="form-control" id="envDropdown" name="environments">
-	      {{.envDropdowns}}
-	    </select>
-	  </div>
-	</div>
 
-	<div class="form-group">
-	  <label for="nodeDropdown" class="col-sm-2 control-label">Node</label>
-	  <div class="col-sm-10">
-	    <select class="form-control" id="nodeDropdown" name="nodes">
-	      {{.hostDropdowns}}
-	    </select>
-	  </div>
-	</div>
-
-	<div class="form-group">
-	  <label for="jsonInput" class="col-sm-2 control-label">JSON</label>
-	  <div class="col-sm-10">
-	    <textarea class="form-control" id="jsonInput" rows="3" name="json"></textarea>
-	  </div>
-	</div>
-	<button type="submit" class="btn btn-default">Submit</button>
-      </form>
     </div>
   </body>
 </html>

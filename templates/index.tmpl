@@ -24,10 +24,15 @@
   </head>
   <body>
     <div class="container">
+      <center>
+	<h1>Preview Deploy</h1>
+      </center>
+      <hr>
+
       <form class="form-horizontal" role="form">
 	<div class="form-group">
-	  <label for="envDropdown" class="col-sm-2 control-label">Environment</label>
-	  <div class="col-sm-10">
+	  <label for="envDropdown" class="col-md-2 control-label">Environment</label>
+	  <div class="col-md-9">
 	    <select class="form-control" id="envDropdown">
 	      <option value="" disabled selected>Environment</option>
 	      {{.envDropdowns}}
@@ -36,8 +41,8 @@
 	</div>
 
 	<div class="form-group">
-	  <label for="nodeDropdown" class="col-sm-2 control-label">Node</label>
-	  <div class="col-sm-10">
+	  <label for="nodeDropdown" class="col-md-2 control-label">Node</label>
+	  <div class="col-md-9">
 	    <select class="form-control" id="nodeDropdown">
 	      <option value="" disabled selected>Node</option>
 	      {{.hostDropdowns}}
@@ -46,8 +51,8 @@
 	</div>
 
 	<div class="form-group">
-	  <label for="jsonInput" class="col-sm-2 control-label">JSON</label>
-	  <div class="col-sm-10">
+	  <label for="jsonInput" class="col-md-2 control-label">JSON</label>
+	  <div class="col-md-9">
 	    <textarea class="form-control" id="jsonInput" rows="3"></textarea>
 	  </div>
 	</div>

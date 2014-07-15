@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"log"
+	"net/http"
 )
 
 type appContext struct {
@@ -17,6 +18,8 @@ func NewApp(config *appConfig) (*appContext, error) {
 	app.gin = gin.Default()
 	app.gin.LoadHTMLTemplates("templates/*")
 	app.gin.GET("/", app.rootHandler)
+	app.gin.GET("/status", app.statusHandler)
+	app.gin.POST("/", app.formHandler)
 	log.Println(config)
 	return app, nil
 }
@@ -30,11 +33,11 @@ func (app *appContext) rootHandler(ctx *gin.Context) {
 	envDropdowns := ""
 	hostDropdowns := ""
 	for _, env := range app.config.Environments {
-		base := `<option>` + env + `</option>` + "\n"
+		base := `<option value="` + env + `">` + env + `</option>` + "\n"
 		envDropdowns += base
 	}
 	for _, node := range app.config.Nodes {
-		base := `<option>` + node.Hostname + `</option>` + "\n"
+		base := `<option value"` + node.Hostname + `">` + node.Hostname + `</option>` + "\n"
 		hostDropdowns += base
 	}
 
@@ -43,4 +46,15 @@ func (app *appContext) rootHandler(ctx *gin.Context) {
 		"hostDropdowns": template.HTML(hostDropdowns),
 	}
 	ctx.HTML(200, "index.tmpl", obj)
+}
+
+func (app *appContext) formHandler(ctx *gin.Context) {
+	ctx.Req.ParseForm()
+	log.Println(ctx.Req.Form)
+	http.Redirect(ctx.Writer, ctx.Req, "/status", 303)
+}
+
+func (app *appContext) statusHandler(ctx *gin.Context) {
+	obj := gin.H{}
+	ctx.HTML(200, "status.tmpl", obj)
 }

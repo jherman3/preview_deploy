@@ -50,3 +50,4 @@ bin/*
 .kitchen.local.yml
 
 preview_deploy.config*
+preview_deploy

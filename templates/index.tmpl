@@ -15,6 +15,13 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
+    <!-- Create a simple CodeMirror instance -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.3.0/codemirror.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.3.0/codemirror.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.3.0/mode/javascript/javascript.js"></script>
+
+    <link rel="stylesheet" href="resources/app.css"></script>
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -27,24 +34,21 @@
       <center>
 	<h1>Preview Deploy</h1>
       </center>
-      <hr>
-
-      <form class="form-horizontal" role="form">
+      <hr>      
+      <form class="form-horizontal" role="form" method="POST">
 	<div class="form-group">
 	  <label for="envDropdown" class="col-md-2 control-label">Environment</label>
 	  <div class="col-md-9">
-	    <select class="form-control" id="envDropdown">
-	      <option value="" disabled selected>Environment</option>
+	    <select class="form-control" id="envDropdown" name="environments">
 	      {{.envDropdowns}}
-	  </select>
+	    </select>
 	  </div>
 	</div>
 
 	<div class="form-group">
 	  <label for="nodeDropdown" class="col-md-2 control-label">Node</label>
 	  <div class="col-md-9">
-	    <select class="form-control" id="nodeDropdown">
-	      <option value="" disabled selected>Node</option>
+	    <select class="form-control" id="nodeDropdown" name="nodes">
 	      {{.hostDropdowns}}
 	    </select>
 	  </div>
@@ -53,9 +57,26 @@
 	<div class="form-group">
 	  <label for="jsonInput" class="col-md-2 control-label">JSON</label>
 	  <div class="col-md-9">
-	    <textarea class="form-control" id="jsonInput" rows="3"></textarea>
+	    <textarea class="form-control" id="jsonInput" rows="3" name="json"></textarea>
 	  </div>
 	</div>
+
+	<textarea id="myTextarea"></textarea>
+	<script>
+	  var editor = CodeMirror.fromTextArea(document.getElementById("myTextarea"), {
+	    lineNumbers: true,
+	    styleActiveLine: true,
+	    matchBrackets: true,
+	    mode: "text/javascript"
+	  });
+	  console.log(CodeMirror.modes);
+	</script>
+	
+	<center>
+	  <div class="form-group">
+	    <button type="submit" class="btn btn-lg btn-primary">Submit</button>
+	  </div>
+	</center>
       </form>
     </div>
   </body>

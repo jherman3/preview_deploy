@@ -32,6 +32,6 @@ $(function() {
 	lineNumbers: true,
 	styleActiveLine: true,
 	matchBrackets: true,
-	readOnly: true
+	readOnly: "nocursor"
     });
 });

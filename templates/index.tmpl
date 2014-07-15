@@ -24,13 +24,33 @@
   </head>
   <body>
     <div class="container">
-      <form class="form" role="form">
-	<select class="form-control">
-	  {{.envDropdowns}}
-	</select>
-	<select class="form-control">
-	  {{.hostDropdowns}}
-	</select>
+      <form class="form-horizontal" role="form">
+	<div class="form-group">
+	  <label for="envDropdown" class="col-sm-2 control-label">Environment</label>
+	  <div class="col-sm-10">
+	    <select class="form-control" id="envDropdown">
+	      <option value="" disabled selected>Environment</option>
+	      {{.envDropdowns}}
+	  </select>
+	  </div>
+	</div>
+
+	<div class="form-group">
+	  <label for="nodeDropdown" class="col-sm-2 control-label">Node</label>
+	  <div class="col-sm-10">
+	    <select class="form-control" id="nodeDropdown">
+	      <option value="" disabled selected>Node</option>
+	      {{.hostDropdowns}}
+	    </select>
+	  </div>
+	</div>
+
+	<div class="form-group">
+	  <label for="jsonInput" class="col-sm-2 control-label">JSON</label>
+	  <div class="col-sm-10">
+	    <textarea class="form-control" id="jsonInput" rows="3"></textarea>
+	  </div>
+	</div>
       </form>
     </div>
   </body>

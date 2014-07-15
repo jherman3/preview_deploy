@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in {1..50}
+for i in {1..5}
 do
    echo "Iteration $i"
    sleep 1

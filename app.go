@@ -10,13 +10,22 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 type appContext struct {
-	config       *appConfig
-	gin          *gin.Engine
-	deployStatus string
-	logBuffer    *bytes.Buffer
+	config *appConfig
+	gin    *gin.Engine
+	// Lots of global state, but the app only needs to handle one deploy at once
+	deployStatus   string
+	logBuffer      *bytes.Buffer
+	currentCommand string
+}
+
+type infoResponse struct {
+	Status  string `json:"status"`
+	Log     string `json:"log"`
+	Command string `json:"command"`
 }
 
 func NewApp(config *appConfig) (*appContext, error) {
@@ -29,12 +38,14 @@ func NewApp(config *appConfig) (*appContext, error) {
 	app.gin.LoadHTMLTemplates("templates/*")
 	app.gin.GET("/", app.rootHandler)
 	app.gin.GET("/status", app.statusHandler)
-	app.gin.GET("/log", app.logHandler)
+	app.gin.GET("/info", app.infoHandler)
 	app.gin.POST("/", app.formHandler)
 	path, _ := os.Getwd()
 	path = filepath.Join(path, "resources")
 	app.gin.Static("/resources", path)
+
 	app.logBuffer = bytes.NewBufferString("")
+	app.currentCommand = "N/A"
 
 	log.Println(config)
 	return app, nil
@@ -94,14 +105,23 @@ func (app *appContext) formHandler(ctx *gin.Context) {
 }
 
 func (app *appContext) statusHandler(ctx *gin.Context) {
-	obj := gin.H{}
+	obj := gin.H{"deployStatus": app.deployStatus}
 	ctx.HTML(200, "status.tmpl", obj)
 }
 
-func (app *appContext) logHandler(ctx *gin.Context) {
+func (app *appContext) infoHandler(ctx *gin.Context) {
 	logstr := app.logBuffer.String()
-
-	ctx.String(200, logstr)
+	out := ""
+	lines := strings.Split(logstr, "\n")
+	for _, line := range lines {
+		out += "<p>" + line + "</p>\n"
+	}
+	resp := infoResponse{
+		Status:  app.deployStatus,
+		Log:     out,
+		Command: app.currentCommand,
+	}
+	ctx.JSON(200, resp)
 }
 
 func (app *appContext) Deploy(environment, host, configJson string) error {
@@ -120,6 +140,7 @@ func (app *appContext) Deploy(environment, host, configJson string) error {
 	//cmdStr := fmt.Sprintf("knife bootstrap -E %s %s -r %s chef-full --json-attributes '%s' -x %s --sudo -c %s", environment,
 	//		host, buildRecipes(app.config.Recipes), minJson, app.config.User, app.config.KnifeRb)
 	cmdStr := filepath.Join(os.Getenv("GOPATH"), "/src/github.com/jherman3/preview_deploy/fake_command.sh")
+	app.currentCommand = cmdStr
 	log.Println(cmdStr)
 	cmd := exec.Command(cmdStr)
 	go app.processCommand(cmd)

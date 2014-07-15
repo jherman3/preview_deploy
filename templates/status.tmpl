@@ -33,17 +33,8 @@
       <h2>Command: </h2>
       <span id="command"></span>
       <h2>Output:</h2>
-      <textarea id="log" rows="3" name="log"></textarea>
+      <div id="log"></div>
       </div>
-
-      <script>
-	var editor = CodeMirror.fromTextArea(document.getElementById("log"), {
-	lineNumbers: true,
-	styleActiveLine: true,
-	matchBrackets: true,
-	readOnly: true
-	});
-      </script>
     </div>
   </body>
 </html>

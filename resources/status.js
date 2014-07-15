@@ -1,5 +1,5 @@
 var updateLog = function(log) {
-    $("#log").html(log)
+    editor.setValue(log);
 };
 
 var updateStatus = function(status) {
@@ -24,3 +24,14 @@ var logUpdater = setInterval(function() {
 	updateCmd(data["command"])
     });
 }, 1000);
+
+var editor;
+
+$(function() {
+    editor = CodeMirror(document.getElementById("log"), {
+	lineNumbers: true,
+	styleActiveLine: true,
+	matchBrackets: true,
+	readOnly: true
+    });
+});

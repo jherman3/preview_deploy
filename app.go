@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"log"
@@ -10,7 +11,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 )
 
 type appContext struct {
@@ -76,6 +76,10 @@ func (app *appContext) rootHandler(ctx *gin.Context) {
 }
 
 func (app *appContext) formHandler(ctx *gin.Context) {
+	app.deployStatus = "Not deploying"
+	app.logBuffer.Reset()
+	app.currentCommand = "N/A"
+
 	ctx.Req.ParseForm()
 	log.Println(ctx.Req.Form)
 
@@ -110,15 +114,9 @@ func (app *appContext) statusHandler(ctx *gin.Context) {
 }
 
 func (app *appContext) infoHandler(ctx *gin.Context) {
-	logstr := app.logBuffer.String()
-	out := ""
-	lines := strings.Split(logstr, "\n")
-	for _, line := range lines {
-		out += "<p>" + line + "</p>\n"
-	}
 	resp := infoResponse{
 		Status:  app.deployStatus,
-		Log:     out,
+		Log:     app.logBuffer.String(),
 		Command: app.currentCommand,
 	}
 	ctx.JSON(200, resp)
@@ -136,11 +134,11 @@ func (app *appContext) Deploy(environment, host, configJson string) error {
 		}
 	}
 	_ = minJson
-	// Use dummy script for testing
-	//cmdStr := fmt.Sprintf("knife bootstrap -E %s %s -r %s chef-full --json-attributes '%s' -x %s --sudo -c %s", environment,
-	//		host, buildRecipes(app.config.Recipes), minJson, app.config.User, app.config.KnifeRb)
+	actualCmdStr := fmt.Sprintf("knife bootstrap -E %s %s -r %s chef-full --json-attributes '%s' -x %s --sudo -c %s", environment,
+		host, buildRecipes(app.config.Recipes), minJson, app.config.User, app.config.KnifeRb)
+
 	cmdStr := filepath.Join(os.Getenv("GOPATH"), "/src/github.com/jherman3/preview_deploy/fake_command.sh")
-	app.currentCommand = cmdStr
+	app.currentCommand = actualCmdStr
 	log.Println(cmdStr)
 	cmd := exec.Command(cmdStr)
 	go app.processCommand(cmd)
@@ -153,13 +151,11 @@ func (app *appContext) processCommand(cmd *exec.Cmd) {
 	cmd.Stdout = app.logBuffer
 	cmd.Stderr = app.logBuffer
 
-	cmd.Start()
-	go func() {
-		cmd.Wait()
+	err := cmd.Run()
+	if err == nil {
 		app.deployStatus = "Completed"
-	}()
-	for app.deployStatus == "In progress" {
-
+	} else {
+		app.deployStatus = "Error: " + err.Error()
 	}
 }
 

@@ -61,13 +61,12 @@
 	  </div>
 	</div>
 
-	<textarea id="myTextarea"></textarea>
 	<script>
-	  var editor = CodeMirror.fromTextArea(document.getElementById("myTextarea"), {
+	  var editor = CodeMirror.fromTextArea(document.getElementById("jsonInput"), {
 	    lineNumbers: true,
 	    styleActiveLine: true,
 	    matchBrackets: true,
-	    mode: "text/javascript"
+	    mode: "application/json"
 	  });
 	  console.log(CodeMirror.modes);
 	</script>

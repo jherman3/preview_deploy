@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 type appContext struct {
@@ -19,6 +21,8 @@ func NewApp(config *appConfig) (*appContext, error) {
 	app.gin.LoadHTMLTemplates("templates/*")
 	app.gin.GET("/", app.rootHandler)
 	app.gin.GET("/status", app.statusHandler)
+	path, _ := os.Getwd()
+	app.gin.Static("/resources", filepath.Join(path, "resources"))
 	app.gin.POST("/", app.formHandler)
 	log.Println(config)
 	return app, nil

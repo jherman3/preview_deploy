@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"log"
@@ -11,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 type appContext struct {
@@ -100,12 +100,21 @@ func (app *appContext) formHandler(ctx *gin.Context) {
 		configJson = []string{""}
 	}
 
-	err := app.Deploy(env[0], host[0], configJson[0])
+	err := app.Deploy(env[0], app.lookupNodeUrl(host[0]), configJson[0])
 	if err != nil {
 		log.Println(err)
 		http.Error(ctx.Writer, "Error parsing JSON: "+err.Error(), 400)
 	}
 	http.Redirect(ctx.Writer, ctx.Req, "/status", 303)
+}
+
+func (app *appContext) lookupNodeUrl(name string) string {
+	for _, node := range app.config.Nodes {
+		if node.Hostname == name {
+			return node.Url
+		}
+	}
+	return ""
 }
 
 func (app *appContext) statusHandler(ctx *gin.Context) {
@@ -123,24 +132,14 @@ func (app *appContext) infoHandler(ctx *gin.Context) {
 }
 
 func (app *appContext) Deploy(environment, host, configJson string) error {
-	var minJson string
-	if len(configJson) == 0 {
-		minJson = ""
-	} else {
-		var err error
-		minJson, err = minifyJson(configJson)
-		if err != nil {
-			return err
-		}
+	jsonArg, err := createJsonArg(configJson)
+	if err != nil {
+		return err
 	}
-	_ = minJson
-	actualCmdStr := fmt.Sprintf("knife bootstrap -E %s %s -r %s chef-full --json-attributes '%s' -x %s --sudo -c %s", environment,
-		host, buildRecipes(app.config.Recipes), minJson, app.config.User, app.config.KnifeRb)
-
-	cmdStr := filepath.Join(os.Getenv("GOPATH"), "/src/github.com/jherman3/preview_deploy/fake_command.sh")
-	app.currentCommand = actualCmdStr
-	log.Println(cmdStr)
-	cmd := exec.Command(cmdStr)
+	cmd := exec.Command("knife", "bootstrap", "-E", environment, host, "-r", buildRecipes(app.config.Recipes),
+		jsonArg, "-x", app.config.User, "--sudo", "-c", app.config.KnifeRb)
+	app.currentCommand = strings.Join(cmd.Args, " ")
+	log.Println(cmd)
 	go app.processCommand(cmd)
 	return nil
 }
@@ -159,13 +158,16 @@ func (app *appContext) processCommand(cmd *exec.Cmd) {
 	}
 }
 
-func minifyJson(configJson string) (string, error) {
+func createJsonArg(configJson string) (string, error) {
+	if len(configJson) == 0 {
+		return "", nil
+	}
 	dest := bytes.NewBufferString("")
 	err := json.Compact(dest, []byte(configJson))
 	if err != nil {
 		return "", err
 	}
-	return dest.String(), nil
+	return "-j " + dest.String(), nil
 }
 
 func buildRecipes(recipes []string) string {
